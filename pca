@@ -1,0 +1,174 @@
+
+# =========================================================
+# STEP 1: IMPORT LIBRARIES
+# =========================================================
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+from sklearn.model_selection import train_test_split
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
+from sklearn.decomposition import PCA
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, classification_report
+
+# =========================================================
+# STEP 2: LOAD DATASET
+# =========================================================
+df = pd.read_csv("data.csv")
+
+print("First 5 rows:\n", df.head())
+print("Dataset shape:", df.shape)
+
+# =========================================================
+# STEP 3: SEPARATE FEATURES AND TARGET
+# =========================================================
+X = df.drop(columns=["target"])
+y = df["target"]
+
+# Select numerical features for this example
+X = X.select_dtypes(include="number")
+
+print("Original number of features:", X.shape[1])
+
+# =========================================================
+# STEP 4: SPLIT DATA
+# =========================================================
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+# =========================================================
+# STEP 5: MODEL WITHOUT PCA
+# =========================================================
+model_without_pca = Pipeline([
+    ("imputer", SimpleImputer(strategy="median")),
+    ("scaler", StandardScaler()),
+    ("classifier", LogisticRegression(max_iter=1000))
+])
+
+model_without_pca.fit(X_train, y_train)
+pred_without_pca = model_without_pca.predict(X_test)
+
+acc_without_pca = accuracy_score(y_test, pred_without_pca)
+
+print("\nWITHOUT PCA")
+print("Accuracy:", round(acc_without_pca, 4))
+print(classification_report(y_test, pred_without_pca, zero_division=0))
+
+# =========================================================
+# STEP 6: MODEL WITH PCA
+# =========================================================
+model_with_pca = Pipeline([
+    ("imputer", SimpleImputer(strategy="median")),
+    ("scaler", StandardScaler()),
+    ("pca", PCA(n_components=0.95)),
+    ("classifier", LogisticRegression(max_iter=1000))
+])
+
+model_with_pca.fit(X_train, y_train)
+pred_with_pca = model_with_pca.predict(X_test)
+
+acc_with_pca = accuracy_score(y_test, pred_with_pca)
+
+print("\nWITH PCA")
+print("Accuracy:", round(acc_with_pca, 4))
+print(classification_report(y_test, pred_with_pca, zero_division=0))
+
+# =========================================================
+# STEP 7: COMPARE RESULTS
+# =========================================================
+pca_model = model_with_pca.named_steps["pca"]
+
+comparison = pd.DataFrame({
+    "Model": ["Without PCA", "With PCA"],
+    "Features": [X.shape[1], pca_model.n_components_],
+    "Accuracy": [acc_without_pca, acc_with_pca]
+})
+
+print("\nMODEL COMPARISON")
+print(comparison.to_string(index=False))
+
+print("PCA variance retained:",
+      round(pca_model.explained_variance_ratio_.sum() * 100, 2), "%")
+
+# =========================================================
+# STEP 8: PLOT 1 - ACCURACY COMPARISON
+# =========================================================
+plt.figure(figsize=(7, 5))
+
+plt.bar(
+    ["Without PCA", "With PCA"],
+    [acc_without_pca, acc_with_pca]
+)
+
+plt.ylabel("Accuracy")
+plt.ylim(0, 1)
+plt.title("Accuracy Comparison: PCA vs Without PCA")
+plt.tight_layout()
+plt.show()
+
+# =========================================================
+# STEP 9: PLOT 2 - PCA EXPLAINED VARIANCE
+# =========================================================
+plt.figure(figsize=(7, 5))
+
+variance = pca_model.explained_variance_ratio_
+cumulative_variance = np.cumsum(variance)
+
+plt.plot(
+    range(1, len(variance) + 1),
+    cumulative_variance,
+    marker="o"
+)
+
+plt.axhline(y=0.95, linestyle="--", label="95% variance")
+plt.xlabel("Number of Principal Components")
+plt.ylabel("Cumulative Explained Variance")
+plt.title("PCA Explained Variance")
+plt.legend()
+plt.tight_layout()
+plt.show()
+
+# =========================================================
+# STEP 10: PLOT 3 - ACTUAL VS PREDICTED CLASSES
+# =========================================================
+actual = np.asarray(y_test)
+predicted = np.asarray(pred_with_pca)
+
+plt.figure(figsize=(8, 5))
+
+plt.plot(actual, "o-", label="Actual")
+plt.plot(predicted, "x--", label="Predicted")
+
+plt.xlabel("Test Sample Index")
+plt.ylabel("Class Label")
+plt.title("Actual vs Predicted Classes (With PCA)")
+plt.legend()
+plt.tight_layout()
+plt.show()
+
+# =========================================================
+# STEP 11: INFERENCE
+# =========================================================
+print("\nINFERENCE")
+print("Original features:", X.shape[1])
+print("PCA components:", pca_model.n_components_)
+print("Accuracy without PCA:", round(acc_without_pca, 4))
+print("Accuracy with PCA:", round(acc_with_pca, 4))
+
+# =========================================================
+# STEP 12: CONCLUSION
+# =========================================================
+print("\nCONCLUSION")
+
+if acc_with_pca > acc_without_pca:
+    print("PCA achieved higher test accuracy on this split.")
+elif acc_with_pca < acc_without_pca:
+    print("Without PCA achieved higher test accuracy on this split.")
+else:
+    print("Both models achieved equal test accuracy.")
+
+print("Choose based on predictive performance and feature reduction needs.")
