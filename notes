@@ -1,0 +1,208 @@
+# Complete ML Pipeline for Each Algorithm — Headings Only
+
+For your dataset, `Loan Sanction Amount (USD)` is a numerical target, so use regression algorithms.
+
+## 1. Common steps for every algorithm
+
+| Step                       | What to use                                        | Why / when                                                                         |
+| -------------------------- | -------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| 1. Load data               | Pandas                                             | Read the dataset into a DataFrame.                                                 |
+| 2. Separate X and y        | `drop()` and target column                         | X = input features; y = target to predict.                                         |
+| 3. Identify column types   | `select_dtypes()`                                  | Separate numerical and categorical columns.                                        |
+| 4. Handle missing values   | `SimpleImputer`                                    | Use when columns contain missing values.                                           |
+| 5. Encode categorical data | `OneHotEncoder` / `OrdinalEncoder`                 | Convert text categories into numbers.                                              |
+| 6. Scale numerical data    | `StandardScaler` / `MinMaxScaler` / `RobustScaler` | Needed for algorithms sensitive to feature scale.                                  |
+| 7. Split data              | `train_test_split()`                               | Keep test data for final evaluation.                                               |
+| 8. Select algorithm        | Regressor class                                    | Choose the model based on the problem.                                             |
+| 9. Hyperparameter tuning   | `GridSearchCV`                                     | Find the best parameter combination.                                               |
+| 10. Train and predict      | `fit()` and `predict()`                            | Train the model and predict target values.                                         |
+| 11. Evaluate               | `R2`, `MAE`, `MSE` / `RMSE`                        | Measure regression performance.                                                    |
+| 12. Compare models         | Cross-validation scores                            | Compare performance fairly.                                                        |
+| 13. Significance testing   | Paired t-test / Wilcoxon / Friedman                | Use when you need to test whether score differences are statistically significant. |
+| 14. Find best model        | Highest R² or lowest error                         | Choose based on the evaluation metric.                                             |
+
+Important: Fit imputers, encoders and scalers using training data only. Use a `Pipeline` and `ColumnTransformer` to avoid data leakage during cross-validation. If your practical requires no Pipeline, perform the preprocessing after splitting and fit transformations on training data only.
+
+## 2. Algorithm-wise pipeline
+
+The preprocessing steps differ depending on the algorithm.
+
+### A. KNN Regressor
+
+Use when predictions depend on nearby, similar data points.
+
+1. Separate X and y
+2. Identify numerical and categorical columns
+3. Handle missing values
+4. One-hot encode categorical columns
+5. StandardScaler or MinMaxScaler for numerical columns
+6. Train-test split
+7. `KNeighborsRegressor`
+8. `GridSearchCV` — tune `n_neighbors`, `weights`, `p`
+9. Predict
+10. Evaluate using R², MAE, RMSE
+
+### B. Support Vector Regression (SVR)
+
+Use for regression with linear or nonlinear relationships.
+
+1. Separate X and y
+2. Identify column types
+3. Handle missing values
+4. Encode categorical columns
+5. StandardScaler for numerical features
+6. Train-test split
+7. `SVR`
+8. `GridSearchCV` — tune `kernel`, `C`, `epsilon`, `gamma`
+9. Predict
+10. Evaluate using R², MAE, RMSE
+
+### C. Linear Regression
+
+Use as a simple baseline when the relationship is approximately linear.
+
+1. Separate X and y
+2. Identify column types
+3. Handle missing values
+4. Encode categorical columns
+5. Scale numerical features if useful
+6. Train-test split
+7. `LinearRegression`
+8. Fit and predict
+9. Evaluate using R², MAE, RMSE
+
+### D. Ridge Regression
+
+Use linear regression with L2 regularization to reduce large coefficients.
+
+1. Separate X and y
+2. Identify column types
+3. Handle missing values
+4. Encode categorical columns
+5. StandardScaler
+6. Train-test split
+7. `Ridge`
+8. `GridSearchCV` — tune `alpha`
+9. Predict
+10. Evaluate using R², MAE, RMSE
+
+### E. Lasso Regression
+
+Use L1 regularization; it can shrink some coefficients to zero.
+
+1. Separate X and y
+2. Identify column types
+3. Handle missing values
+4. Encode categorical columns
+5. StandardScaler
+6. Train-test split
+7. `Lasso`
+8. `GridSearchCV` — tune `alpha`
+9. Predict
+10. Evaluate using R², MAE, RMSE
+
+### F. Decision Tree Regressor
+
+Use when relationships may be nonlinear and easy-to-follow decision rules are useful.
+
+1. Separate X and y
+2. Identify column types
+3. Handle missing values
+4. Encode categorical columns
+5. Scaling usually not required
+6. Train-test split
+7. `DecisionTreeRegressor`
+8. `GridSearchCV` — tune `max_depth`, `min_samples_split`, `min_samples_leaf`
+9. Predict
+10. Evaluate using R², MAE, RMSE
+
+### G. Random Forest Regressor
+
+Use an ensemble of decision trees for more stable predictions.
+
+1. Separate X and y
+2. Identify column types
+3. Handle missing values
+4. Encode categorical columns
+5. Scaling usually not required
+6. Train-test split
+7. `RandomForestRegressor`
+8. `GridSearchCV` — tune `n_estimators`, `max_depth`, `min_samples_leaf`
+9. Predict
+10. Evaluate using R², MAE, RMSE
+
+### H. AdaBoost Regressor
+
+Use an ensemble that focuses progressively on difficult-to-predict observations.
+
+1. Separate X and y
+2. Identify column types
+3. Handle missing values
+4. Encode categorical columns
+5. Scaling usually not required for its usual tree-based base estimator
+6. Train-test split
+7. `AdaBoostRegressor`
+8. `GridSearchCV` — tune `n_estimators`, `learning_rate`, `estimator`
+9. Predict
+10. Evaluate using R², MAE, RMSE
+
+### I. Gradient Boosting Regressor
+
+Use boosted trees to model complex relationships.
+
+1. Separate X and y
+2. Identify column types
+3. Handle missing values
+4. Encode categorical columns
+5. Scaling usually not required
+6. Train-test split
+7. `GradientBoostingRegressor`
+8. `GridSearchCV` — tune `n_estimators`, `learning_rate`, `max_depth`
+9. Predict
+10. Evaluate using R², MAE, RMSE
+
+### J. XGBoost Regressor
+
+Use gradient-boosted trees for complex tabular datasets.
+
+1. Separate X and y
+2. Identify column types
+3. Handle missing values
+4. Encode categorical columns
+5. Scaling usually not required
+6. Train-test split
+7. `XGBRegressor`
+8. `GridSearchCV` — tune `n_estimators`, `max_depth`, `learning_rate`, `subsample`
+9. Predict
+10. Evaluate using R², MAE, RMSE
+
+### K. Polynomial Regression
+
+Use when a linear model is too simple and curved relationships are expected.
+
+1. Separate X and y
+2. Identify column types
+3. Handle missing values
+4. Encode categorical columns
+5. Apply `PolynomialFeatures`
+6. Scale generated numerical features
+7. Train-test split (before fitting transformations)
+8. `LinearRegression` or `Ridge`
+9. Tune polynomial degree if required
+10. Predict and evaluate using R², MAE, RMSE
+
+## 3. Final comparison pipeline — after training the models
+
+1. Collect each model's cross-validation scores using the same folds and metric.
+2. Compare two paired models using a paired t-test or Wilcoxon, as appropriate.
+3. Compare three or more models on the same folds using Friedman when a non-parametric comparison is appropriate.
+4. Use ANOVA for suitable independent groups with parametric assumptions; it is not automatically interchangeable with Friedman.
+5. If the overall test is significant, use an appropriate post-hoc test to identify which models differ.
+6. Select the best model using the highest mean R² or lowest mean MAE/RMSE.
+7. Evaluate the selected model on the held-out test set once.
+
+pip install numpy pandas scikit-learn matplotlib xgboost
+
+
+
+
